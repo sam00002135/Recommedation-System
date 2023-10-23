@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>影片推薦</title>
+</head>
+<body>
+    <h1>影片推薦</h1>
+    <form method="POST">
+        <label for="video_name">輸入影片名稱：</label>
+        <input type="text" id="video_name" name="video_name" value="{{ video_name }}" required>
+        <input type="submit" value="提交">
+    </form>
+    
+    <h2>影片推薦：</h2>
+    <ul>
+        {% for video in recommended_videos %}
+            <li>{{ video }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
