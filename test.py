@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 from sklearn.feature_extraction.text import CountVectorizer
 from flask import Flask, request, render_template
+from fuzzywuzzy import fuzz
 
 app = Flask(__name__)
 
@@ -52,15 +53,13 @@ for element in sorted_similar_videos:
 def recommend_videos():
     if request.method == 'POST':
         video_name = request.form['video_name']
-        video_index = find_index_from_title(video_name)
-        if video_index is not None:
-            similar_videos = list(enumerate(cosine_sim[video_index]))
-            sorted_similar_videos = sorted(similar_videos, key=lambda x: x[1], reverse=True)[1:]
-            recommended_videos = [find_title_from_index(element[0]) for element in sorted_similar_videos[:5]]
-            return render_template('recommendations.html', video_name=video_name, recommended_videos=recommended_videos)
-        else:
-            return render_template('recommendations.html', video_name=video_name, recommended_videos=[])
-
+        video_similarity = {}
+        for index, title in enumerate(df['title']):
+            similarity_score = fuzz.partial_ratio(video_name, title)
+            video_similarity[index] = similarity_score
+        sorted_similarity = sorted(video_similarity.items(), key=lambda x: x[1], reverse=True)
+        recommended_videos = [find_title_from_index(element[0]) for element in sorted_similarity[:5]]
+        return render_template('recommendations.html', video_name=video_name, recommended_videos=recommended_videos)
     return render_template('recommendations.html', video_name='', recommended_videos=[])
 
 if __name__ == '__main__':
